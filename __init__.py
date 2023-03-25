@@ -2,10 +2,24 @@ from mycroft import FallbackSkill, intent_handler
 import requests
 import urllib
 import json
+import os
 
-api_endpoint = "https://api.openai.com/v1/completions"
-api_key = [YOUR KEY HERE]
-model = "text-davinci-003"
+
+def read_config() -> dict:
+    filename = os.path.join(os.path.dirname(__file__), 'config.json')
+    try:
+        with open(filename, mode='r') as f:
+            return json.loads(f.read())
+    except FileNotFoundError:
+        return {}
+
+confs = read_config()
+
+api_endpoint = confs["API_ENDPOINT"]
+api_key = confs["API_KEY"]
+model = confs["MODEL"]
+#api_endpoint = "https://api.openai.com/v1/chat/completions"
+#model = "text-davinci-003"
 
 # Define the request headers
 headers = {
