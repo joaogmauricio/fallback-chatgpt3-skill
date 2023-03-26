@@ -28,6 +28,9 @@ headers = {
 }
 
 class FallbackChatgpt(FallbackSkill):
+	_conversation_history = []
+	_max_history = 18
+
 	def __init__(self):
 		FallbackSkill.__init__(self)
 
@@ -36,25 +39,54 @@ class FallbackChatgpt(FallbackSkill):
 
 	def handle_fallback_ChatGPT(self, message):
 		try:
+			self._conversation_history.append({"role": "user", "content": message.data['utterance']})
 			payload = {
 				"model": model,
-				"prompt": message.data['utterance'],
-				"max_tokens": 2048,
-				"temperature": 0.4,
-				"top_p": 1,
-				"frequency_penalty": 0,
-				"presence_penalty": 0
+				"messages": self._conversation_history
+#				"max_tokens": 4096,
+#				"temperature": 1,
+#				"top_p": 1,
+#				"frequency_penalty": 0,
+#				"presence_penalty": 0
 			}
 			response = requests.post(api_endpoint, headers=headers, data=json.dumps(payload))
+			self.log.error(json.dumps(response.json()))
 			response_json = response.json()
 			freason = response_json["choices"][0]["finish_reason"]
-			self.log.info(freason)
-			response = response_json["choices"][0]["text"]
+#			self.log.info(freason)
+			response = response_json["choices"][0]["message"]["content"]
 			self.speak(response)
+			self._conversation_history.append({"role": "assistant", "content": response})
+			if len(self._conversation_history) > self._max_history:
+				self._conversation_history.pop(0)
+				self._conversation_history.pop(0)
 			return True
-		except:
-			self.log.info("error in ChatGPT fallback request")
+		except Exception as e:
+			self.log.error("error in ChatGPT fallback request " + str(e))
 			return False
+
+# !text-davinci-003!
+#	def handle_fallback_ChatGPT(self, message):
+#		try:
+#			payload = {
+#				"model": model,
+#				"prompt": message.data['utterance'],
+#				"max_tokens": 2048,
+#				"temperature": 0.4,
+#				"top_p": 1,
+#				"frequency_penalty": 0,
+#				"presence_penalty": 0
+#			}
+#			response = requests.post(api_endpoint, headers=headers, data=json.dumps(payload))
+#			response_json = response.json()
+#			freason = response_json["choices"][0]["finish_reason"]
+#			self.log.info(freason)
+#			response = response_json["choices"][0]["text"]
+#			self.speak(response)
+#			return True
+#		except Exception as e:
+#			self.log.error("error in ChatGPT fallback request " + str(e))
+#			return False
 
 def create_skill():
 	return FallbackChatgpt()
