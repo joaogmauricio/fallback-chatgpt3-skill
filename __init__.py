@@ -50,7 +50,7 @@ class FallbackChatgpt(FallbackSkill):
 #				"presence_penalty": 0
 			}
 			response = requests.post(api_endpoint, headers=headers, data=json.dumps(payload))
-			self.log.error(json.dumps(response.json()))
+#			self.log.error(json.dumps(response.json()))
 			response_json = response.json()
 			freason = response_json["choices"][0]["finish_reason"]
 #			self.log.info(freason)
