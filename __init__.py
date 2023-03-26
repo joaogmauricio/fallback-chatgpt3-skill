@@ -56,7 +56,7 @@ class FallbackChatgpt(FallbackSkill):
 #			self.log.info(freason)
 			response = response_json["choices"][0]["message"]["content"]
 			self.speak(response)
-			self._conversation_history.append({"role": "assistant", "content": response})
+#			self._conversation_history.append({"role": "assistant", "content": response})
 			if len(self._conversation_history) > self._max_history:
 				self._conversation_history.pop(0)
 				self._conversation_history.pop(0)
