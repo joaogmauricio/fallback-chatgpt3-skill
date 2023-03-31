@@ -34,7 +34,7 @@ class FallbackChatgpt(FallbackSkill):
 		FallbackSkill.__init__(self)
 
 	def initialize(self):
-		self.register_fallback(self.handle_fallback_ChatGPT, 50)
+		self.register_fallback(self.handle_fallback_ChatGPT, 90)
 
 	def handle_fallback_ChatGPT(self, message):
 		self.log.info("Using ChatGPT fallback")
