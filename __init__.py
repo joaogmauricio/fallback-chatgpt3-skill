@@ -4,7 +4,6 @@ import urllib
 import json
 import os
 
-
 def read_config() -> dict:
 	filename = os.path.join(os.path.dirname(__file__), 'config.json')
 	try:
@@ -18,8 +17,8 @@ confs = read_config()
 api_endpoint = confs["API_ENDPOINT"]
 api_key = confs["API_KEY"]
 model = confs["MODEL"]
-#api_endpoint = "https://api.openai.com/v1/chat/completions"
-#model = "text-davinci-003"
+#api_endpoint = "https://api.openai.com/v1/completions"
+#model = "code-davinci-002"
 
 # Define the request headers
 headers = {
@@ -35,9 +34,10 @@ class FallbackChatgpt(FallbackSkill):
 		FallbackSkill.__init__(self)
 
 	def initialize(self):
-		self.register_fallback(self.handle_fallback_ChatGPT, 8)
+		self.register_fallback(self.handle_fallback_ChatGPT, 50)
 
 	def handle_fallback_ChatGPT(self, message):
+		self.log.info("Using ChatGPT fallback")
 		try:
 			self._conversation_history.append({"role": "user", "content": message.data['utterance']})
 			payload = {
@@ -56,7 +56,7 @@ class FallbackChatgpt(FallbackSkill):
 #			self.log.info(freason)
 			response = response_json["choices"][0]["message"]["content"]
 			self.speak(response)
-#			self._conversation_history.append({"role": "assistant", "content": response})
+			self._conversation_history.append({"role": "assistant", "content": response})
 			if len(self._conversation_history) > self._max_history:
 				self._conversation_history.pop(0)
 				self._conversation_history.pop(0)
